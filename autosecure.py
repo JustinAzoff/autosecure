@@ -37,7 +37,7 @@ class Facebook:
         fb_dtsg = q("[name=fb_dtsg]")[0].value
         payload["fb_dtsg"] = fb_dtsg
 
-        url = 'https://' + session['Host'] + self.url
+        url = 'https://%s/%s' % (self.host, self.url)
         print 'sending payload', payload
         r = requests.post(url, data=payload, headers=session)
 
