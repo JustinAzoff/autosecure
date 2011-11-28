@@ -57,6 +57,7 @@ class AutoSecure:
         }
 
     def secure_sesion(self, session):
+        #FIXME: this should be a hash lookup
         for handler in handlers:
             if session['Host'].endswith(handler.site):
                 h = handler()
