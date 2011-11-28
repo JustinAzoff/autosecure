@@ -1,4 +1,9 @@
-import getopt, sys, pcap, dpkt, re, httplib
+import re
+import sys
+
+import pcap
+import dpkt
+
 import requests
 from pyquery import PyQuery as pq
 
