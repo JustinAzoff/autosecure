@@ -31,3 +31,4 @@ class Facebook:
 
         print 'sending payload', payload
         r = requests.post(self.url, data=payload, headers=session)
+        print r
