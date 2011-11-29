@@ -17,10 +17,12 @@ class Twitter:
 
     def secure(self, session):
         payload = self.payload.copy()
-        session['Accept'] = 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'
-        session['Accept-Language'] = 'en-US,en;q=0.8'
-        session['Accept-Charset'] = 'ISO-8859-1,utf-8;q=0.7,*;q=0.3'
-        settings_page = requests.get(self.settings_url, headers=session).content
+        headers = session.copy()
+        del headers['Host']
+        headers['Accept'] = 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'
+        headers['Accept-Language'] = 'en-US,en;q=0.8'
+        headers['Accept-Charset'] = 'ISO-8859-1,utf-8;q=0.7,*;q=0.3'
+        settings_page = requests.get(self.settings_url, headers=headers).content
         q=pq(settings_page)
 
         #TODO: refacter
@@ -28,4 +30,5 @@ class Twitter:
         payload["authenticity_token"] = authenticity_token
 
         print 'sending payload', payload
-        r = requests.post(self.url, data=payload, headers=session)
+        r = requests.post(self.url, data=payload, headers=headers)
+        print r
