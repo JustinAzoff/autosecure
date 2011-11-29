@@ -5,7 +5,7 @@ from autosecure.util import re_extract
 
 class Twitter:
     name = "Twitter"
-    site = "twitter.com"
+    site = "api.twitter.com"
     settings_url = "http://twitter.com/settings/account"
     url = "http://twitter.com/settings/accounts/update"
     payload = {"user[ssl_only]": "1",
@@ -21,7 +21,6 @@ class Twitter:
         session['Accept-Language'] = 'en-US,en;q=0.8'
         session['Accept-Charset'] = 'ISO-8859-1,utf-8;q=0.7,*;q=0.3'
         settings_page = requests.get(self.settings_url, headers=session).content
-        print settings_page
         q=pq(settings_page)
 
         #TODO: refacter
