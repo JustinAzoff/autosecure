@@ -8,12 +8,12 @@ Initially based off of https://github.com/jonty/idiocy almost everything rewritt
 
 Requires
 --------
-* Python + pypcap, dpkt, requests, pyquery
+* Python + pynids,requests, pyquery
 
 Running
 -------
 
-* apt-get install libpcap0.8 python-pypcap python-dpkt python-pyquery
+* apt-get install python-nids python-pyquery
 * pip install requests
 
 or to get everything via pip:
