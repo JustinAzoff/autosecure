@@ -8,15 +8,11 @@ import dpkt
 import requests
 from pyquery import PyQuery as pq
 
-from autosecure.handlers import all_handlers as handlers
+from autosecure.handlers import handler_map
+from autosecure.util import re_extract
 
 
 DEFAULT_UA = "Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 5.1; Trident/4.0; MathPlayer 2.10b; .NET CLR 1.1.4322; .NET CLR 2.0.50727; .NET CLR 3.0.04506.30; .NET CLR 3.0.04506.648; .NET CLR 3.0.4506.2152; .NET CLR 3.5.30729"
-
-def re_extract(rex, data):
-    m = re.search(rex, data)
-    if m:
-        return m.groups()[0]
 
 class AutoSecure:
     def __init__(self, interface="wlan0"):
@@ -57,19 +53,20 @@ class AutoSecure:
         }
 
     def secure_sesion(self, session):
-        #FIXME: this should be a hash lookup
-        for handler in handlers:
-            if session['Host'].endswith(handler.site):
-                h = handler()
-                user = h.extract_user(session)
-                if user  in self.secured_users:
-                    return
-                print "Securing", h.name, user
-                self.secured_users.add(user)
-                return h.secure(session)
+        handler = handler_map.get(session['Host'])
+        if not handler:
+            return
+        h = handler()
+        user = h.extract_user(session)
+        if user  in self.secured_users:
+            return
+        print "Securing", h.name, user
+        self.secured_users.add(user)
+        return h.secure(session)
 
     def secure_sheep(self):
         for s in self.get_sessions():
+            print s
             self.secure_sesion(s)
 
 def main():

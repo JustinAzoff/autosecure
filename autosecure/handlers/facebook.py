@@ -1,12 +1,13 @@
 import requests
 from pyquery import PyQuery as pq
 
+from autosecure.util import re_extract
+
 class Facebook:
     name = "Facebook"
-    site = ".facebook.com"
-    host = "www.facebook.com"
+    site = "www.facebook.com"
     settings_url = "https://www.facebook.com/settings?tab=security&section=browsing&t"
-    url = "/ajax/settings/security/browsing.php"
+    url = "https:/www.facebook.com/ajax/settings/security/browsing.php"
     payload = {"post_form_id": None,
                 "fb_dtsg": None,
                 "secure_browsing": "1"
@@ -28,6 +29,5 @@ class Facebook:
         fb_dtsg = q("[name=fb_dtsg]")[0].value
         payload["fb_dtsg"] = fb_dtsg
 
-        url = 'https://%s/%s' % (self.host, self.url)
         print 'sending payload', payload
-        r = requests.post(url, data=payload, headers=session)
+        r = requests.post(self.url, data=payload, headers=session)
