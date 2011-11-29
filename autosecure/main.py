@@ -37,13 +37,13 @@ class AutoSecure:
                 yield session
 
     def extract_session(self, packet):
-        host = re_extract('Host: ([^\r\n]+)', packet)
+        host = re_extract('Host: ([^\r\n]+)[\r\n]', packet)
         if not host:
             return
-        cookie = re_extract('Cookie: ([^\r\n]+)', packet)
+        cookie = re_extract('Cookie: ([^\r\n]+)[\r\n]', packet)
         if not cookie:
             return
-        ua = re_extract('User-Agent: ([^\r\n]+)', packet)
+        ua = re_extract('User-Agent: ([^\r\n]+)[\r\n]', packet)
         if not ua:
             ua = DEFAULT_UA
         return {
