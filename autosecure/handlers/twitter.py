@@ -25,7 +25,7 @@ class Twitter:
         q=pq(settings_page)
 
         #TODO: refacter
-        post_form_id = q("[name=authenticity_token]")[0].value
+        authenticity_token = q("[name=authenticity_token]")[0].value
         payload["authenticity_token"] = authenticity_token
 
         print 'sending payload', payload
