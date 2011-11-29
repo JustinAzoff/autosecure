@@ -7,7 +7,7 @@ class Facebook:
     name = "Facebook"
     site = "www.facebook.com"
     settings_url = "https://www.facebook.com/settings?tab=security&section=browsing&t"
-    url = "https:/www.facebook.com/ajax/settings/security/browsing.php"
+    url = "https://www.facebook.com/ajax/settings/security/browsing.php"
     payload = {"post_form_id": None,
                 "fb_dtsg": None,
                 "secure_browsing": "1"
