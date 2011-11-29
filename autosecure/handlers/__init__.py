@@ -4,7 +4,7 @@ from twitter import Twitter
 
 all_handlers = [
     Facebook,
-    Twitter,
+#   Twitter,
 ]
 
 handler_map = {}

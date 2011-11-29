@@ -79,6 +79,8 @@ class AutoSecure:
         user = h.extract_user(session)
         if user  in self.secured_users:
             return
+        if not user:
+            return
         print "Securing", h.name, user
         self.secured_users.add(user)
         return h.secure(session)

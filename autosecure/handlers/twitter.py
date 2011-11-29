@@ -1,3 +1,4 @@
+#broken, twitter prompts for the users password before toggling the setting.
 import requests
 from pyquery import PyQuery as pq
 
